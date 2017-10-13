@@ -20,6 +20,8 @@ public class TeleOpV2 extends OpMode
     private DcMotor backRightMotor = null;
     private DcMotor liftMotor = null;
     private Servo arm = null;
+    private boolean stickTracker = 0;
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -75,49 +77,57 @@ public class TeleOpV2 extends OpMode
         double backLeftPower = 0;
         double backRightPower = 0;
         double liftPower = 0;
+        private float speedCoef = 1.0;
+
+        //Set speed
+        if (stickTracker == false && left_stick_button == true)
+        {
+            speedCoef = (speedCoef == 1.0) ? 1.0 : 0.5;
+        }
+        stickTracker = left_stick_button;
 
         // Uses left stick to control the left wheels, and the right stick to control the right wheels
         if (gamepad1.left_stick_x >= -0.2 && gamepad1.left_stick_x <= 0.2)
         {
-            frontLeftPower = -gamepad1.left_stick_y;
-            backLeftPower = -gamepad1.left_stick_y;
-            frontRightPower = -gamepad1.left_stick_y;
-            backRightPower = -gamepad1.left_stick_y;
+            frontLeftPower = -gamepad1.left_stick_y * speedCoef;
+            backLeftPower = -gamepad1.left_stick_y * speedCoef;
+            frontRightPower = -gamepad1.left_stick_y * speedCoef;
+            backRightPower = -gamepad1.left_stick_y * speedCoef;
         }
         else if (gamepad1.left_stick_y >= -0.2 && gamepad1.left_stick_y <= 0.2)
         {
-            frontLeftPower = gamepad1.left_stick_x;
-            backLeftPower = -1 * gamepad1.left_stick_x;
-            frontRightPower = -1 * gamepad1.left_stick_x;
-            backRightPower = gamepad1.left_stick_x;
+            frontLeftPower = gamepad1.left_stick_x * speedCoef;
+            backLeftPower = -1 * gamepad1.left_stick_x * speedCoef;
+            frontRightPower = -1 * gamepad1.left_stick_x * speedCoef;
+            backRightPower = gamepad1.left_stick_x * speedCoef;
         }
         else if (gamepad1.left_stick_x < -0.2 && gamepad1.left_stick_y < -0.2)
         {
-            backLeftPower = 1;
-            frontRightPower = 1;
+            backLeftPower = 1 * speedCoef;
+            frontRightPower = 1 * speedCoef;
         }
         else if (gamepad1.left_stick_x > 0.2 && gamepad1.left_stick_y < -0.2)
         {
-            frontLeftPower = 1;
-            backRightPower = 1;
+            frontLeftPower = 1 * speedCoef;
+            backRightPower = 1 * speedCoef;
         }
         else if (gamepad1.left_stick_x < -0.2 && gamepad1.left_stick_y > 0.2)
         {
-            frontLeftPower = -1;
-            backRightPower = -1;
+            frontLeftPower = -1 * speedCoef;
+            backRightPower = -1 * speedCoef;
         }
         else
         {
-            frontRightPower = -1;
-            backLeftPower = -1;
+            frontRightPower = -1 * speedCoef;
+            backLeftPower = -1 * speedCoef;
         }
 
         if (gamepad1.right_stick_x > 0.2 || gamepad1.right_stick_x < -0.2)
         {
-            frontLeftPower = gamepad1.right_stick_x;
-            backLeftPower = gamepad1.right_stick_x;
-            frontRightPower = -gamepad1.right_stick_x;
-            backRightPower = -gamepad1.right_stick_x;
+            frontLeftPower = gamepad1.right_stick_x * speedCoef;
+            backLeftPower = gamepad1.right_stick_x * speedCoef;
+            frontRightPower = -gamepad1.right_stick_x * speedCoef;
+            backRightPower = -gamepad1.right_stick_x * speedCoef;
         }
 
         if (gamepad1.dpad_up)
@@ -139,7 +149,7 @@ public class TeleOpV2 extends OpMode
         backLeftMotor.setPower(backLeftPower);
         backRightMotor.setPower(backRightPower);
         liftMotor.setPower(liftPower);
-        arm.setPosition(gamepad1.right_trigger);
+        arm.setPosition(gamepad1.right_trigger / 2.0);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
